@@ -26,7 +26,6 @@
 
     <form id="payment-form">
         <div id="card-element">
-            <!-- Вставляем элемент Stripe для ввода данных карты -->
         </div>
         <button id="submit">Buy</button>
         <div id="error-message" role="alert"></div>
@@ -55,13 +54,10 @@
                         }
                     }).then(function(result) {
                         if (result.error) {
-                            // Обработка ошибок
                             document.getElementById('error-message').textContent = result.error.message;
                         } else {
                             if (result.paymentIntent.status === 'succeeded') {
-                                // Оплата прошла успешно
                                 alert('Payment succeeded!');
-                                // Перенаправляем пользователя на страницу успеха
                                 window.location.href = '/success/';
                             }
                         }
