@@ -20,12 +20,12 @@ jobs:
 
     - name: Copy project to server
       run: |
-        rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./ root@95.164.113.115:/home/dave/fintech/
+        rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./ root@95.164.113.115:/home/dave/test_fintech/
 
     - name: Restart application on server
       run: |
         ssh -o StrictHostKeyChecking=no root@95.164.113.115 << 'EOF'
-          cd /home/dave/fintech/
+          cd /home/dave/test_fintech/
           docker-compose down
           docker-compose pull
           docker-compose build
