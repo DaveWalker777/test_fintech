@@ -23,7 +23,7 @@ services:
   web:
     build: .
     command: >
-      sh -c "python manage.py runserver --bind 0.0.0.0:8000"
+      sh -c "python manage.py runserver 0.0.0.0:8000"
     volumes:
       - /home/dave/fintech:/code
     ports:
