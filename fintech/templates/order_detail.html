@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order #{{ order.id }}</title>
+</head>
+<body>
+    <h1>Order #{{ order.id }}</h1>
+    <ul>
+        {% for item in order.items.all %}
+            <li>{{ item.name }} - {{ item.price }} {{ item.currency }}</li>
+        {% endfor %}
+    </ul>
+
+    <p>Discounts: {% for discount in discounts %} {{ discount.amount }} {{ order.items.first.currency }}
+        {% empty %}
+            <li>No discounts</li>
+        {% endfor %}</p>
+
+    <p>Taxes: {% for tax in taxes %} {{ tax.amount }} {{ order.items.first.currency }}
+        {% empty %}
+            <li>No taxes</li>
+        {% endfor %}</p>
+
+    <p>Total: {{ order.total_amount }} {{ order.items.first.currency }}</p>
+
+    <form id="payment-form">
+        <div id="card-element">
+            <!-- Вставляем элемент Stripe для ввода данных карты -->
+        </div>
+        <button id="submit">Buy</button>
+        <div id="error-message" role="alert"></div>
+    </form>
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        var stripe = Stripe('{{ stripe_public_key }}');
+        var elements = stripe.elements();
+        var cardElement = elements.create('card');
+        cardElement.mount('#card-element');
+
+        var form = document.getElementById('payment-form');
+        form.addEventListener('submit', function (ev) {
+            ev.preventDefault();
+
+            fetch('/create-payment-intent/{{ order.id }}/')
+                .then(response => response.json())
+                .then(data => {
+                    stripe.confirmCardPayment(data.clientSecret, {
+                        payment_method: {
+                            card: cardElement,
+                            billing_details: {
+                                name: 'Customer Name',
+                            },
+                        }
+                    }).then(function(result) {
+                        if (result.error) {
+                            // Обработка ошибок
+                            document.getElementById('error-message').textContent = result.error.message;
+                        } else {
+                            if (result.paymentIntent.status === 'succeeded') {
+                                // Оплата прошла успешно
+                                alert('Payment succeeded!');
+                                // Перенаправляем пользователя на страницу успеха
+                                window.location.href = '/success/';
+                            }
+                        }
+                    });
+                });
+        });
+    </script>
+</body>
+</html>
