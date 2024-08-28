@@ -53,7 +53,7 @@ def order_detail(request, order_id):
 
 def create_payment_intent(request, order_id):
     order = get_object_or_404(Order, id=order_id)
-    order.calculate_total(
+    order.calculate_total()
     payment_intent = stripe.PaymentIntent.create(
         amount=int(order.total_amount * 100),
         currency=order.items.first().currency,

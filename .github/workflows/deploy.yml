@@ -1,0 +1,35 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH agent
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.fintech }}
+
+    - name: Copy project to server
+      run: |
+        rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./ root@95.164.113.115:/home/dave/fintech/
+
+    - name: Restart application on server
+      run: |
+        ssh -o StrictHostKeyChecking=no root@95.164.113.115 << 'EOF'
+          cd /home/dave/fintech/
+          docker-compose down
+          docker-compose pull
+          docker-compose build
+          docker-compose up -d
+        EOF
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.fintech }}
